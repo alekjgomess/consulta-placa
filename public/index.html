@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catálogo por placa</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0b1f44;--blue:#1d4ea2;--yellow:#f5c518;--bg:#eef1f5;--card:#fff;--ink:#16222c;--mute:#5d6b77;--line:#d9e0e6;--err:#ffb4ab}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+.cond{font-family:"Barlow Condensed",Impact,sans-serif}
+header{background:var(--navy);color:#fff;padding:56px 16px 110px;
+  background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:36px 36px}
+.wrap{max-width:920px;margin:0 auto}
+h1{font:700 clamp(2.2rem,6vw,3.6rem)/1 "Barlow Condensed",Impact,sans-serif;margin:0 0 10px;max-width:14ch}
+header p{margin:0 0 28px;color:#b8c6e0}
+.plate{position:relative;display:block;width:min(100%,480px);border:4px solid #0a0a0a;border-radius:14px;background:#fff;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.4)}
+.plate .band{background:var(--blue);color:#fff;font:600 .85rem "IBM Plex Sans",sans-serif;letter-spacing:.3em;text-align:center;padding:4px}
+.plate input{display:block;width:100%;border:0;outline:0;background:transparent;color:#111;text-align:center;font:700 clamp(2.8rem,10vw,4.6rem)/1.15 "Barlow Condensed",Impact,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:6px 8px}
+.plate:focus-within{outline:4px solid var(--yellow);outline-offset:3px}
+.plate.loading::after{content:"";position:absolute;top:0;bottom:0;width:70px;background:linear-gradient(90deg,transparent,rgba(245,197,24,.7),transparent);animation:scan 1s linear infinite}
+@keyframes scan{from{left:-80px}to{left:100%}}
+.plate.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.go{margin-top:18px;font:700 1.1rem "IBM Plex Sans",sans-serif;background:var(--yellow);color:#111;border:0;border-radius:10px;padding:13px 28px;cursor:pointer}
+.go:focus-visible,.chip:focus-visible,.copy:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.go:disabled{opacity:.6}
+.err{margin:14px 0 0;color:var(--err);font-weight:500}
+main{max-width:920px;margin:-64px auto 60px;padding:0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:0 8px 24px rgba(11,31,68,.08);margin-bottom:20px;animation:up .45s ease both}
+@keyframes up{from{opacity:0;transform:translateY(14px)}}
+.head{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.head img{height:48px;width:auto}
+.head h2{font:700 2rem/1 "Barlow Condensed",Impact,sans-serif;margin:0}
+.head small{color:var(--mute)}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.specs div{background:var(--card);padding:12px 14px}
+.specs dt{font-size:.8rem;color:var(--mute)}
+.specs dd{margin:0;font-weight:600}
+.sec{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.sec h3{font:700 1.6rem/1 "Barlow Condensed",Impact,sans-serif;margin:0}
+.sec input{border:1px solid var(--line);border-radius:8px;padding:8px 12px;font:inherit;background:var(--bg);color:var(--ink);min-width:200px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.part{border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:6px;border-top:4px solid var(--yellow)}
+.part .ic{font-size:1.5rem}
+.part .cat{color:var(--mute);font-size:.9rem}
+.part .ref{font:700 1.9rem/1 "Barlow Condensed",Impact,sans-serif;letter-spacing:.04em}
+.part .obs{font-size:.85rem;color:var(--mute)}
+.copy{align-self:flex-start;margin-top:4px;font:500 .8rem "IBM Plex Sans";border:1px solid var(--line);background:transparent;color:var(--blue);border-radius:6px;padding:4px 10px;cursor:pointer}
+.empty{color:var(--mute);margin:0}
+.skel{height:110px;border-radius:12px;background:linear-gradient(90deg,#e4e9ee 25%,#f1f4f7 50%,#e4e9ee 75%);background-size:200% 100%;animation:sk 1.2s infinite}
+@keyframes sk{to{background-position:-200% 0}}
+details{margin-top:8px}
+summary{cursor:pointer;color:var(--mute);font-weight:500}
+form.adm{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:16px 0}
+form.adm input{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;background:var(--bg);color:var(--ink)}
+form.adm button{background:var(--navy);color:#fff;border:0;border-radius:8px;padding:9px;font:600 1rem "IBM Plex Sans";cursor:pointer}
+.row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:.9rem}
+.row button{border:0;background:none;color:#b3261e;cursor:pointer}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>Encontre a peça certa pela placa</h1>
+  <p>Digite a placa e veja o que o veículo aceita: palhetas, óleo, filtros e mais.</p>
+  <form id="f">
+    <label class="plate" id="plate"><span class="band">BRASIL</span>
+      <input id="placa" maxlength="7" placeholder="ABC1D23" autocomplete="off" aria-label="Placa do veículo"></label>
+    <button class="go" id="go">Consultar placa</button>
+    <p class="err" id="err" role="alert" hidden></p>
+  </form>
+</div></header>
+
+<main>
+  <div id="out"></div>
+  <div class="card" id="admin">
+    <details><summary>Gerenciar catálogo</summary>
+      <form class="adm" id="af">
+        <input name="marca" placeholder="Marca (HYUNDAI)" required>
+        <input name="modelo" placeholder="Modelo (HB20)" required>
+        <input name="ano_de" type="number" placeholder="Ano de" required>
+        <input name="ano_ate" type="number" placeholder="Ano até" required>
+        <input name="categoria" placeholder="Categoria" required>
+        <input name="referencia" placeholder="Referência" required>
+        <input name="observacao" placeholder="Observação">
+        <input id="key" type="password" placeholder="Chave de admin" required>
+        <button>Adicionar</button>
+      </form>
+      <p class="err" id="aerr" hidden style="color:#b3261e"></p>
+      <div id="alist"></div>
+    </details>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cap = s => (s || '—').toLowerCase().replace(/(^|\s|\/)\S/g, c => c.toUpperCase());
+const icone = c => /palheta/i.test(c) ? '🌧️' : /óleo|oleo/i.test(c) ? '🛢️' : /filtro/i.test(c) ? '⚙️' : /pastilha|freio/i.test(c) ? '🛑' : /vela|bateria/i.test(c) ? '⚡' : '🔩';
+let placaAtual = '', produtos = [];
+
+function erro(t){ $('err').textContent = t; $('err').hidden = !t; if(t){ $('plate').classList.add('shake'); setTimeout(()=>$('plate').classList.remove('shake'),400); } }
+
+function grid(lista){
+  return lista.length ? lista.map(p => `<div class="part"><span class="ic">${icone(p.categoria)}</span>
+    <span class="cat">${esc(p.categoria)}</span><span class="ref">${esc(p.referencia)}</span>
+    ${p.observacao ? `<span class="obs">${esc(p.observacao)}</span>` : ''}
+    <button class="copy" data-ref="${esc(p.referencia)}">Copiar referência</button></div>`).join('')
+    : '<p class="empty">Nenhum produto encontrado para esse filtro.</p>';
+}
+
+function render({veiculo: v, produtos: ps}){
+  produtos = ps;
+  $('out').innerHTML = `
+  <section class="card">
+    <div class="head">${v.logo ? `<img src="${esc(v.logo)}" alt="" onerror="this.remove()">` : ''}
+      <div><h2>${esc(cap(v.marca))} ${esc(v.modelo)}</h2><small>Placa ${esc(v.placa)}${v.municipio ? ' · ' + esc(cap(v.municipio)) : ''}</small></div></div>
+    <dl class="specs">
+      <div><dt>Marca</dt><dd>${esc(cap(v.marca))}</dd></div>
+      <div><dt>Modelo</dt><dd>${esc(v.modelo)}</dd></div>
+      <div><dt>Cor</dt><dd>${esc(cap(v.cor))}</dd></div>
+      <div><dt>Ano</dt><dd>${esc(v.anoFabricacao)} / ${esc(v.anoModelo)}</dd></div>
+      <div><dt>Câmbio</dt><dd>${esc(v.cambio)}</dd></div>
+      <div><dt>Combustível</dt><dd>${esc(v.combustivel.replace(/\s*\/\s*/g,' / ') || '—')}</dd></div>
+    </dl>
+  </section>
+  <section class="card">
+    <div class="sec"><h3>Produtos compatíveis (${ps.length})</h3>
+      ${ps.length ? '<input id="q" placeholder="Filtrar produtos" aria-label="Filtrar produtos">' : ''}</div>
+    ${ps.length ? `<div class="grid" id="grid">${grid(ps)}</div>` : '<p class="empty">Ainda não há produtos cadastrados para este veículo. Use “Gerenciar catálogo” abaixo para adicionar.</p>'}
+  </section>`;
+  $('q')?.addEventListener('input', e => {
+    const t = e.target.value.toLowerCase();
+    $('grid').innerHTML = grid(produtos.filter(p => (p.categoria + p.referencia + (p.observacao||'')).toLowerCase().includes(t)));
+  });
+}
+
+$('f').addEventListener('submit', async e => {
+  e.preventDefault(); erro('');
+  placaAtual = $('placa').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!/^[A-Z]{3}\d[A-Z0-9]\d{2}$/.test(placaAtual)) return erro('Placa inválida. Use ABC1234 ou ABC1D23.');
+  $('go').disabled = true; $('plate').classList.add('loading');
+  $('out').innerHTML = '<div class="card"><div class="skel"></div></div>';
+  try {
+    const r = await fetch('/api/consulta/' + placaAtual), d = await r.json();
+    if (!r.ok) throw new Error(d.erro);
+    render(d);
+  } catch (err) { $('out').innerHTML = ''; erro(err.message || 'Falha na consulta.'); }
+  finally { $('go').disabled = false; $('plate').classList.remove('loading'); }
+});
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.copy'); if (!b) return;
+  navigator.clipboard?.writeText(b.dataset.ref); b.textContent = 'Copiado'; setTimeout(() => b.textContent = 'Copiar referência', 1200);
+});
+
+// ---- Admin ----
+const hdr = () => ({'Content-Type':'application/json','x-admin-key':$('key').value});
+async function carregarLista(){
+  const r = await fetch('/api/produtos', {headers: hdr()}); const d = await r.json();
+  if (!r.ok) { $('aerr').textContent = d.erro; $('aerr').hidden = false; return; }
+  $('aerr').hidden = true;
+  $('alist').innerHTML = d.map(p => `<div class="row"><span>${esc(p.marca)} ${esc(p.modelo)} ${p.ano_de}-${p.ano_ate} · ${esc(p.categoria)}: <b>${esc(p.referencia)}</b></span><button data-del="${p.id}">Remover</button></div>`).join('');
+}
+$('af').addEventListener('submit', async e => {
+  e.preventDefault();
+  const body = Object.fromEntries(new FormData(e.target));
+  const r = await fetch('/api/produtos', {method:'POST', headers: hdr(), body: JSON.stringify(body)});
+  if (!r.ok) { $('aerr').textContent = (await r.json()).erro; $('aerr').hidden = false; return; }
+  e.target.reset(); carregarLista();
+});
+$('alist').addEventListener('click', async e => {
+  const id = e.target.dataset.del; if (!id) return;
+  await fetch('/api/produtos/' + id, {method:'DELETE', headers: hdr()}); carregarLista();
+});
+$('key').addEventListener('change', carregarLista);
+</script>
+</body>
+</html>
